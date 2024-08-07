@@ -7,7 +7,6 @@ class prompt{
     }
 }
 let id = 0
-
 class get_all_prompts_strategy{
     process(request, response){
         const status = {};
@@ -36,7 +35,8 @@ class delete_strategy{
     }
 }
 class patch_strategy{
-    process(response, request){
+    process(request, response){
+        console.log(request.body)
         if("title" in request.body){
             prompts[request.body["id"]].title = request.body["title"]
         }
@@ -83,8 +83,10 @@ class request_process{
     }
 }
 const express = require('express');
+const cors = require('cors')
 const app = express();
 app.use(express.json());
+app.use(cors())
 const PORT=process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log("Server is Listening on PORT:", PORT);
@@ -99,22 +101,20 @@ app.route("/prompts").all((request, response, next)=>{
     } else response.status(400).send({"message":"method not supported"})
 })
 
-app.route("/prompt").all((request, response, next)=>{
+app.route("/prompt/:id").all((request, response, next)=>{
+    const id = request.params.id;
+    request.body['id'] = id;
     if(request.method === "GET" || request.method === "PATCH" || request.method === "DELETE") {
-        if ("id" in request.body) {
-            if (request.body["id"] in prompts) {
-                if (request.method === "GET") {
-                    response.send((new request_process(get_single_prompt_strategy)).process(request, response))
-                } else if (request.method === "PATCH") {
-                    response.send((new request_process(patch_strategy)).process(request, response))
-                } else if (request.method === "DELETE") {
-                    response.send((new request_process(delete_strategy)).process(request, response))
-                }
-            } else {
-                response.status(404).send({"message": "prompt doesnt exist"})
+        if (id in prompts) {
+            if (request.method === "GET") {
+                response.send((new request_process(get_single_prompt_strategy)).process(request, response))
+            } else if (request.method === "PATCH") {
+                response.send((new request_process(patch_strategy)).process(request, response))
+            } else if (request.method === "DELETE") {
+                response.send((new request_process(delete_strategy)).process(request, response))
             }
         } else {
-            response.status(400).send({"message": "id not determined"})
+            response.status(404).send({"message": "prompt doesnt exist"})
         }
     } else {
         response.status(400).send({"message": "method not supported"})
