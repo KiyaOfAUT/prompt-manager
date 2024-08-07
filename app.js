@@ -8,20 +8,11 @@ class prompt{
 }
 let id = 0
 
-const express = require('express');
-const app = express();
-app.use(express.json());
-const PORT=process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log("Server is Listening on PORT:", PORT);
-});
-let prompts = {}
-
-app.route("/prompts").all((request, response, next)=>{
-    if(request.method === "GET"){
+class get_all_prompts_strategy{
+    process(request, response){
         const status = {};
         if(prompts.length === 0){
-            response.send(status)
+            return status
         } else {
             let response_prompts = []
             for (let key in prompts) {
@@ -33,51 +24,100 @@ app.route("/prompts").all((request, response, next)=>{
                 response_prompts.push(hold_prompt)
             }
             status["prompts"]=response_prompts
+            return status
         }
-        response.send(status);
-    } else if(request.method === "POST"){
+    }
+}
+
+class delete_strategy{
+    process(request, response){
+        delete prompts[request.body["id"]]
+        return {"message": "success"}
+    }
+}
+class patch_strategy{
+    process(response, request){
+        if("title" in request.body){
+            prompts[request.body["id"]].title = request.body["title"]
+        }
+        if("desc" in request.body){
+            prompts[request.body["id"]].desc = request.body["desc"]
+        }
+        if("fav" in request.body){
+            prompts[request.body["id"]].fav = request.body["fav"]
+        }
+        return {"message": "success"}
+    }
+}
+
+class get_single_prompt_strategy{
+    process(request, response){
+        const status = {}
+        let hold = prompts[request.body["id"]]
+        status["id"] = hold.id
+        status["title"] = hold.title
+        status["desc"] = hold.desc
+        status["fav"] = hold.fav
+        return status
+    }
+}
+class post_prompt_strategy{
+    process(request, response){
         if("title" in request.body && "desc" in request.body && "fav" in request.body) {
             prompts[id] = new prompt(id, request.body['title'], request.body['desc'], request.body['fav']);
             id++;
-            response.send({"message": "posted successful"});
+            return {"message": "posted successful"}
         } else {
-            response.status(400).send({"message":"some of the required fields does not exist"})
+            response.status(400)
+            return {"message":"some of the required fields does not exist"}
         }
+    }
+}
+class request_process{
+    constructor(strategy) {
+    this.strategy = new strategy()
+    }
+
+    process(request, response){
+        return this.strategy.process(request, response)
+    }
+}
+const express = require('express');
+const app = express();
+app.use(express.json());
+const PORT=process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log("Server is Listening on PORT:", PORT);
+});
+let prompts = {}
+
+app.route("/prompts").all((request, response, next)=>{
+    if(request.method === "GET"){
+        response.send((new request_process(get_all_prompts_strategy)).process(request, response));
+    } else if(request.method === "POST"){
+        response.send((new request_process(post_prompt_strategy)).process(request, response))
     } else response.status(400).send({"message":"method not supported"})
 })
 
 app.route("/prompt").all((request, response, next)=>{
-    if("id" in request.body) {
-        if (request.body["id"] in prompts) {
-            if (request.method === "GET") {
-                const status = {}
-                let hold = prompts[request.body["id"]]
-                status["id"] = hold.id
-                status["title"] = hold.title
-                status["desc"] = hold.desc
-                status["fav"] = hold.fav
-                response.send(status)
-            } else if (request.method === "PATCH") {
-                if("title" in request.body){
-                    prompts[request.body["id"]].title = request.body["title"]
+    if(request.method === "GET" || request.method === "PATCH" || request.method === "DELETE") {
+        if ("id" in request.body) {
+            if (request.body["id"] in prompts) {
+                if (request.method === "GET") {
+                    response.send((new request_process(get_single_prompt_strategy)).process(request, response))
+                } else if (request.method === "PATCH") {
+                    response.send((new request_process(patch_strategy)).process(request, response))
+                } else if (request.method === "DELETE") {
+                    response.send((new request_process(delete_strategy)).process(request, response))
                 }
-                if("desc" in request.body){
-                    prompts[request.body["id"]].desc = request.body["desc"]
-                }
-                if("fav" in request.body){
-                    prompts[request.body["id"]].fav = request.body["fav"]
-                }
-                response.send({"message": "success"})
-            } else if (request.method === "DELETE"){
-                delete prompts[request.body["id"]]
-                response.send({"message": "success"})
             } else {
-                response.status(400).send({"message":"method not supported"})
+                response.status(404).send({"message": "prompt doesnt exist"})
             }
         } else {
-            response.status(404).send({"message": "prompt doesnt exist"})
+            response.status(400).send({"message": "id not determined"})
         }
     } else {
-        response.status(400).send({"message": "id not determined"})
+        response.status(400).send({"message": "method not supported"})
     }
+
 })
