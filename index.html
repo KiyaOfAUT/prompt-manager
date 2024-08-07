@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Management System</title>
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.grey.min.css"
+    >
+</head>
+<body>
+<main>
+    <h1>Prompt Management System</h1>
+    <form id="promptForm" style="border: 1px solid grey;border-radius: 1rem; padding: 1rem">
+        <fieldset>
+        <input type="hidden" id="promptId" value="">
+        <label for="titleInput">title:</label>
+        <input type="text" id="titleInput" placeholder="Enter prompt title" required>
+        <label for="descriptionInput">description</label>
+        <textarea id="descriptionInput"
+                name="bio"
+                placeholder="write prompt description"
+                aria-label="prompt description"
+                rows=4
+        >
+        </textarea>
+        <label><input type="checkbox" id="favoriteCheck"> Favorite</label>
+        <input type="submit" value="Add Prompt" id="submitButton">
+        </fieldset>
+    </form>
+
+    <ol id="promptList" style="list-style-type: none">
+    </ol>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const promptForm = document.getElementById('promptForm');
+        const titleInput = document.getElementById('titleInput');
+        const descriptionInput = document.getElementById('descriptionInput')
+        const promptList = document.getElementById('promptList');
+        const button = document.getElementById('submitButton');
+        const favoriteCheck = document.getElementById('favoriteCheck')
+        let prompts = [];
+        let editId = null;
+
+        const renderPrompts = () => {
+            promptList.innerHTML = '';
+            prompts.forEach((prompt, index) => {
+                const is_fav = prompt[2]
+                const li = document.createElement('li');
+                let check_box
+                if(is_fav){
+                    check_box = '<label style="color: orange"><input type="checkbox" disabled checked style="display: none"/> ⭐Favorite</label>'
+                } else {
+                    check_box = '<label style="display: none"><input type="checkbox" disabled/></label>'
+                }
+                li.innerHTML = `
+                        <article style="margin-top: 2rem">
+                            <header>${prompt[0]}</header>
+                            <body>
+                            <textarea name="read-only" readonly>
+                              ${prompt[1]}
+                            </textarea>
+                            ${check_box}
+                            </body>
+                            <footer>
+                            <div role="group">
+                            <button class="edit" data-id="${index}" style="background-color: lightgreen">Edit</button>
+                            <button class="delete" data-id="${index}" style="background-color: lightcoral">Delete</button>
+                            </div>
+                            </footer>
+                        </article>
+                    `;
+                promptList.appendChild(li);
+            });
+        };
+
+        promptForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const promptValue = titleInput.value.trim();
+            const description = descriptionInput.value.trim();
+            const favorite = favoriteCheck.checked
+            if (promptValue) {
+                if (editId !== null) {
+                    prompts[editId] = [promptValue, description, favorite];
+                    editId = null;
+                } else {
+                    prompts.push([promptValue, description, favorite]);
+                }
+                titleInput.value = '';
+                button.value= 'Add Prompt'
+                renderPrompts();
+            }
+        });
+
+        promptList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('edit')) {
+                editId = e.target.dataset.id;
+                titleInput.value = prompts[editId][0];
+                descriptionInput.value = prompts[editId][1];
+                favoriteCheck.checked = prompts[editId][2]
+                button.value = "Edit Prompt"
+            } else if (e.target.classList.contains('delete')) {
+                prompts.splice(e.target.dataset.id, 1);
+                renderPrompts();
+            }
+        });
+
+        renderPrompts();
+    });
+</script>
+</body>
+</html>
