@@ -1,6 +1,14 @@
 # Prompt Manager
 
 table of contents:
+# Table of Contents
+
+1. [Introduction](#introduction)
+2. [Installation](#installation)
+3. [Setting up the server](#setting-up-the-server)
+4. [API Endpoints](#api-endpoints)
+5. [A Tour of the Frontend App](#a-tour-to-the-frontend-app)
+6. [Upcoming Features](#upcoming-features)
 
 # Introduction
 
@@ -11,7 +19,7 @@ you can add, edit, mark and delete prompts in this app.
 # Installation
 
 ## Docker
-
+TBD
 ## Manual
 
 to use the app you should install the latest version of NodeJS and other required packages such as Express and Sequelize.
