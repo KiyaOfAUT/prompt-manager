@@ -1,5 +1,4 @@
 const models = require('./models')
-const {renderPrompts, prompt} = require("./models");
 
 class get_all_prompts_strategy{
     async process(request, response){
@@ -25,13 +24,14 @@ class get_all_prompts_strategy{
 
 class delete_strategy{
     async process(request, response){
-        let hold = await models.renderPrompts(["delete", request.body["id"]]);
+        let hold = await models.renderPrompts(["single", request.body["id"]]);
         if(hold.length === 0){
             response.status(404)
             return {"message": "prompt not found."};
+        } else {
+            await hold[0].destroy();
+            return {"message": "success"}
         }
-        await hold[0].destroy();
-        return {"message": "success"}
     }
 }
 class patch_strategy{
@@ -75,7 +75,7 @@ class get_single_prompt_strategy{
 class post_prompt_strategy{
     async process(request, response){
         if("title" in request.body && "desc" in request.body && "fav" in request.body) {
-            const new_prompt = await prompt.create({title:request.body["title"],description:request.body["desc"], favorite:request.body["fav"]});
+            await models.prompt.create({title:request.body["title"],description:request.body["desc"], favorite:request.body["fav"]});
             return {"message": "posted successful"}
         } else {
             response.status(400)
