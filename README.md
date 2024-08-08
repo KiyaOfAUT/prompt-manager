@@ -7,7 +7,7 @@ table of contents:
 2. [Installation](#installation)
 3. [Setting up the server](#setting-up-the-server)
 4. [API Endpoints](#api-endpoints)
-5. [A Tour of the Frontend App](#a-tour-to-the-frontend-app)
+5. [A Tour to the Frontend App](#a-tour-to-the-frontend-app)
 6. [Upcoming Features](#upcoming-features)
 
 # Introduction
