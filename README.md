@@ -162,6 +162,6 @@ if you click on the edit button of any prompt in the list screen will automatica
 
 # Upcoming features
 
-✨adding priority to prompts and sorting them by their priority in the list
+✨adding priority to prompts and sorting them according to their priority
 
 🚀user authentication
