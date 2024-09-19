@@ -21,6 +21,7 @@ Go to the root folder of the app and run:
 ```bash
 docker-compose up
 ```
+then you can access frontend client on ```http://localhost:8080/```
 ## Manual
 
 to use the app you should install the latest version of NodeJS and other required packages such as Express and Sequelize.
