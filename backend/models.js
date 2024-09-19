@@ -1,8 +1,8 @@
 const { Sequelize } = require('sequelize');
 const { DataTypes } = require('sequelize'); // Import the built-in data types
 const sequelize = new Sequelize('promptmanager', 'myuser', 'mypassword', {
-    host: 'localhost',
-    port: 5051,
+    host: 'db',
+    port: 5432,
     dialect: 'postgres'
 });
 
