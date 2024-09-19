@@ -17,7 +17,10 @@ you can add, edit, mark and delete prompts in this app.
 # Installation
 
 ## Docker
-TBD
+Go to the root folder of the app and run:
+```bash
+docker-compose up
+```
 ## Manual
 
 to use the app you should install the latest version of NodeJS and other required packages such as Express and Sequelize.
@@ -33,7 +36,7 @@ https://sequelize.org/docs/v6/getting-started/
 
 >⚠️ To allow all frontend api fetches you should install cors middleware package after installing NodeJS and ExpressJS:
 >  ```bash
->  $ npm install cors
+>  npm install cors
 >  ```
 >
 
